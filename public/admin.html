@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <nav id="nav-container"></nav>
+</header>
+
+<div class="container">
+  <h1>Admin Dashboard</h1>
+  <div id="user-list"></div>
+</div>
+
+<script src="js/navbar.js"></script>
+<script src="js/auth.js"></script>
+<script>
+async function loadUsers() {
+  try {
+    const res = await fetch('/api/users');
+    if (!res.ok) throw new Error('Failed to load users');
+    const users = await res.json();
+    let html = '';
+    for (const username in users) {
+      html += `
+        <div>
+          ${username} (${users[username].role})
+          <button onclick="deleteUser('${username}')">Delete</button>
+          <button onclick="editUser('${username}')">Edit</button>
+        </div>
+      `;
+    }
+    document.getElementById('user-list').innerHTML = html;
+  } catch (error) {
+    console.error('Error loading users:', error);
+  }
+}
+
+async function deleteUser(username) {
+  if (confirm(`Delete user ${username}?`)) {
+    await fetch(`/admin/delete?username=${username}`);
+    loadUsers();
+  }
+}
+
+async function editUser(oldUsername) {
+  const newUsername = prompt('New username:', oldUsername);
+  if (newUsername && newUsername !== oldUsername) {
+    await fetch('/admin/edit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldUsername, newUsername })
+    });
+    loadUsers();
+  }
+}
+
+checkAuth().then(data => {
+  if (data.role !== 'ADMIN') {
+    window.location.href = '/user-login.html';
+  } else {
+    loadUsers();
+  }
+});
+</script>
+
+</body>
+</html>

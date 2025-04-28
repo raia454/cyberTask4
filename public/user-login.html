@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <nav id="nav-container"></nav>
+</header>
+
+<div class="container">
+  <h1>User Login</h1>
+  <div id="error-message" class="error" style="display:none;"></div>
+  
+  <form id="user-login-form">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<script src="js/navbar.js"></script>
+<script>
+document.getElementById('user-login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  try {
+    const response = await fetch('/user-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = '/my-account.html';
+    } else {
+      const errorMessage = document.getElementById('error-message');
+      errorMessage.textContent = data.error;
+      errorMessage.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.textContent = 'Error connecting to server.';
+    errorMessage.style.display = 'block';
+  }
+});
+</script>
+
+</body>
+</html>

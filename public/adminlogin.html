@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <nav id="nav-container"></nav>
+</header>
+
+<div class="container">
+  <h1>Admin Login</h1>
+  <div id="error-message" class="error" style="display:none;"></div>
+
+  <form id="adminlogin-form">
+    <input type="text" id="username" placeholder="Admin Username" required>
+    <input type="password" id="password" placeholder="Admin Password" required>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<script src="js/navbar.js"></script>
+<script>
+document.getElementById('adminlogin-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const errorMessage = document.getElementById('error-message');
+
+  try {
+    const response = await fetch('/adminlogin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = '/admin.html';
+    } else {
+      errorMessage.textContent = data.error || 'Login failed';
+      errorMessage.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    errorMessage.textContent = 'Error connecting to server.';
+    errorMessage.style.display = 'block';
+  }
+});
+</script>
+
+</body>
+</html>
